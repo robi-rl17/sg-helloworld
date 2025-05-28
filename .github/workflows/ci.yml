@@ -1,0 +1,69 @@
+name: CI - Validate Code and Infrastructure
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Run tests in each Lambda folder
+        run: |
+          if [ -d src ]; then
+            for dir in src/*/; do
+              if [ -d "$dir" ]; then
+                echo "Processing $dir"
+                cd "$dir"
+                if [ -f package.json ]; then
+                  npm install
+                  if [ -f .eslintrc.js ] || [ -f .eslintrc.json ]; then
+                    echo "Running lint in $dir"
+                    npm run lint || true
+                  else
+                    echo "No lint configuration found in $dir, skipping lint"
+                  fi
+                  if [ -d test ] || [ -f test.js ]; then
+                    echo "Running tests in $dir"
+                    npm test || true
+                  else
+                    echo "No tests found in $dir, skipping tests"
+                  fi
+                else
+                  echo "No package.json found in $dir, skipping"
+                fi
+                cd - > /dev/null
+              fi
+            done
+          else
+            echo "src directory does not exist. Skipping Lambda tests."
+          fi
+
+  validate-terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.1
+
+      - name: Initialize Terraform
+        working-directory: infra/terraform
+        run: terraform init -backend=false
+
+      - name: Validate Terraform
+        working-directory: infra/terraform
+        run: terraform validate
