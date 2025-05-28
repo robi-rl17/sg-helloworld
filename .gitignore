@@ -1,0 +1,41 @@
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Logs
+*.log
+
+# macOS system files
+.DS_Store
+
+# IDE settings
+.vscode/
+.idea/
+# Ignore all .env files
+.env
+# Ignore all .env files
+.env.*
+# Ignore all .env files
+.env.local
+# Ignore all .env files
+.env.development
+# Ignore all .env files
+.env.production
+# Ignore all .env files
+.env.test
+# Ignore all .env files
+
+*.zip
+
+# Ignore logs folder
+# Ignore all files in logs folder
+logs/*
